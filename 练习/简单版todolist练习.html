@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单版todolist练习</title>
+    <script src="../node_modules/react/umd/react.development.js"></script>
+    <script src="../node_modules/react-dom/umd/react-dom.development.js"></script>
+    <script src="./browser.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script type="text/babel">
+        // 0、创建context
+        const Context = React.createContext();
+
+        // 1、todolist组件
+        class TodoList extends React.Component {
+            constructor(){
+                super();
+                this.state = {
+                    dataList:[
+                    {
+                        id:1,text:"月入过万",done:false,time:new Date()
+                    },{
+                        id:2,text:"迎娶白富美",done:false,time:new Date()
+                    },{
+                        id:3,text:"出任CEO",done:false,time:new Date()
+                    }
+                ]}
+                this.addItem = this.addItem.bind(this);
+                this.finished = this.finished.bind(this);
+                this.deleted = this.deleted.bind(this);
+            }
+
+            addItem(text){
+                const newDataList = {
+                    id:parseInt(Math.random()*100000),
+                    text,
+                    done:false,
+                    time:new Date()
+                }
+                let newData = [newDataList,...this.state.dataList]
+                this.setState({
+                    dataList:newData,
+                })
+            }
+
+            finished(id){
+                let newData = this.state.dataList;
+                newData.forEach(item=>{
+                    if(item.id===id){
+                        item.done=true}
+                });
+
+                this.setState({
+                    dataList:newData
+                })
+            }
+
+            deleted(id){
+                let newData = this.state.dataList.filter(item=>item.id !== id);
+                this.setState({
+                    dataList: newData,
+                })
+            }
+
+            render(){ 
+                return (
+                    <Context.Provider value={{data:this.state.dataList,finished:this.finished,deleted:this.deleted}}><div style={{backgroundColor:"pink"}}>
+                    <h1>待办事项</h1>
+                    <TodoContent data={this.state} finished={this.finished} deleted={this.deleted}/>
+                    <TodoForm addItem={this.addItem}/>
+                </div></Context.Provider>)
+            }
+        }
+
+        // 2、内容区域
+        class TodoContent extends React.Component{
+            constructor(props){
+                super(props);
+
+                this.tableHead = ["序号","代办事项","是否完成","操作"];
+            }
+
+            render(){
+                const { dataList } = this.props.data;
+                let finish = dataList.filter(item=>item.done===true);
+                let unFinish = dataList.filter(item=>item.done===false);
+
+                 return (<div>
+                    <table width="500">
+                        <thead>
+                            <tr>
+                            {
+                                this.tableHead.map(item=><th key={item}>{item}</th>)
+                            }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <Context.Consumer>
+                                {
+                                    value=>{
+                                        return value.data.map(item=><TodoItem key={item.id} data={item} finished={this.props.finished} deleted={this.props.deleted}/>)
+                                    }
+                                }
+                            </Context.Consumer>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colSpan="4">
+                                    总数：{dataList.length}，未完成：{finish.length}，已完成：{unFinish.length}
+                                </td>
+                            </tr>
+                        </tfoot>    
+                    </table>
+                </div>)
+            }
+        }
+
+        // 2.1 内容区域里面的每一项
+        function TodoItem(props){
+            return (<tr align="center">
+                        <td>{props.data.id}</td>
+                        <td>{props.data.text}</td>
+                        <td>{props.data.done?"已完成":"未完成"}</td>
+                            <Context.Consumer>
+                                {
+                                    value=>{
+                                        return <td><TodoButton click={value.finished.bind(null,props.data.id)}>完成</TodoButton>
+                                        <TodoButton click={value.deleted.bind(null,props.data.id)}>删除</TodoButton></td>
+                                    }
+                                }
+                            </Context.Consumer>
+                    </tr>)
+        }
+
+        // 3、输入内容区域
+        class TodoForm extends React.Component{
+            constructor(props){
+                super(props);
+                this.changeText = this.changeText.bind(this);
+            }
+
+            changeText(){
+                this.props.addItem(this.el.value)
+                this.el.value = "";
+                this.el.focus();
+            }
+
+            render(){
+                 return (<div>
+                    <textarea ref={el=>this.el=el} cols="63" rows="4"></textarea><br />
+                    <TodoButton click={this.changeText}>添加</TodoButton>
+                    </div>)
+            }
+        }
+
+        // 4、按钮
+        function TodoButton(props){
+            return (<button onClick={props.click}>{props.children}</button>)
+        }
+
+        ReactDOM.render(<TodoList />,document.querySelector("#app"))
+    </script>
+</body>
+
+</html>

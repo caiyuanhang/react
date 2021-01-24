@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../node_modules/react/umd/react.development.js"></script>
+    <script src="../node_modules/react-dom/umd/react-dom.development.js"></script>
+    <script src="./browser.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script type="text/babel">
+        const goodList = [{id:1,name:"玩具1",price:20,num:10},{id:2,name:"玩具2",price:20,num:20},{id:3,name:"玩具3",price:20,num:30}]
+
+        const total = goodList.reduce((pre,item)=>{
+            return pre + item.price * item.num;
+        },0)
+
+        ReactDOM.render((<div>
+            <h1>购物车</h1>
+                <ul>
+                    {
+                        goodList.map((item)=>{
+                            return <li key={item.id}>
+                                <span>{ item.name }</span> &times;
+                                <span>{ item.price }</span>
+                                </li>
+                        })
+                    }
+                </ul>
+                <article>
+                    { total }
+                </article>
+            </div>),document.getElementById("app"))
+    </script>
+</body>
+
+</html>

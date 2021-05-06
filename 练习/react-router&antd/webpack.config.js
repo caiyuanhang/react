@@ -17,7 +17,12 @@ module.exports = {
                     {
                         loader: "babel-loader",
                         options: {
-                            presets: ["@babel/preset-react"]
+                            presets: ["@babel/preset-react"],
+                            plugins: [
+                                ["@babel/plugin-proposal-decorators",{ legacy: true }],
+                                ["babel-plugin-import", { libraryName: "antd", style: "css" }, "antd"],
+                                "@babel/plugin-proposal-class-properties"
+                            ]
                         }
                     }
                 ]

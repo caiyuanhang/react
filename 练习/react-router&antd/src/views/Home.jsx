@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { withUser } from "../utils/hoc";
+import { withUser, withTest } from "../utils/hoc";
 
 export default function Home(props){
     console.log("Home组件的props：",props);
